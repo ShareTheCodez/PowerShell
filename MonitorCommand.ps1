@@ -12,7 +12,13 @@ param (	[string]$MonitorCommand = (Read-Host "Command To Monitor"),
 function DisplayMonitorHeaderInfo
 	{
 		$HeaderBorderChar = "="
-		$HeaderBorder = $HeaderBorderChar * 139		#PowerShell Console Size: 140 Wide x 35 High
+		
+		$Terminal = (Get-Host).UI.RawUI
+		$TerminalSize = $Terminal.WindowSize
+		$TerminalWidth = $TerminalSize.Width
+		
+		$TerminalWidth = $TerminalWidth - 1
+		$HeaderBorder = $HeaderBorderChar * $TerminalWidth		#Draw header border to fill window width - 1; -1 prevents blank line under header row
 		
 		Write-Host $HeaderBorder -ForegroundColor Yellow
 		Write-Host "Command Execution Monitoring System" -ForegroundColor Yellow
