@@ -92,7 +92,11 @@ else
 						Clear-Host
  						DisplayMonitorHeaderInfo
 
-					}	
+					}
+					#else
+					#{
+						#Write-Host "  *** No Data ***"
+					#}
 				}
 								#Start-Sleep $RefreshSeconds
 							 						Clear-Host
@@ -100,8 +104,15 @@ else
 			}
 			else
 			{
-
+				if ($Monitor_Display -ne $null)
+				{
 				$Monitor_Display
+				}
+				else
+				{
+					Write-Host "  *** No Data ***"
+				}
+				
 				Start-Sleep $RefreshSeconds
 						Clear-Host
  						DisplayMonitorHeaderInfo
