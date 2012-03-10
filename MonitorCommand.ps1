@@ -9,13 +9,18 @@ param (	[string]$MonitorCommand = (Read-Host "Command To Monitor"),
 		$StopMonitoringHours = (Read-Host "Hours To Stop Monitoring")
 		)
 
+		$Terminal = (Get-Host).UI.RawUI
+		$TerminalSize = $Terminal.WindowSize
+		$TerminalWidth = $TerminalSize.Width
+		$TerminalHeight = $TerminalSize.Height
+
+		$Max_Page_Rows = $TerminalHeight - 9
+
 function DisplayMonitorHeaderInfo
 	{
 		$HeaderBorderChar = "="
 		
-		$Terminal = (Get-Host).UI.RawUI
-		$TerminalSize = $Terminal.WindowSize
-		$TerminalWidth = $TerminalSize.Width
+
 		
 		$TerminalWidth = $TerminalWidth - 1
 		$HeaderBorder = $HeaderBorderChar * $TerminalWidth		#Draw header border to fill window width - 1; -1 prevents blank line under header row
@@ -28,11 +33,11 @@ function DisplayMonitorHeaderInfo
 		Write-Host $HeaderBorder -ForegroundColor Yellow
 	}
 		
-if ($MonitorCommand -eq "")
+if ($MonitorCommand -eq $null)
 	{Write-Host "No Command Indicated."}
-if ($RefreshSeconds -eq "")
-	{$RefreshSeconds = 10}
-if ($StopMonitoringHours -eq "")
+if ($RefreshSeconds -eq $null)
+	{$RefreshSeconds = 5}
+if ($StopMonitoringHours -eq $null)
 	{$StopMonitoringHours = 1}
 else
 	{
@@ -43,10 +48,10 @@ else
 		$MonitoringStart = $Today
 		$StopDateTime = $Today.AddHours($StopMonitoringHours)
 		
-		$Max_Page_Rows = 10
 		
-		#Clear-Host
-		#DisplayMonitorHeaderInfo
+		
+		Clear-Host
+		DisplayMonitorHeaderInfo
 		
 		while ($true)
 		{
@@ -54,8 +59,8 @@ else
 			# and Repeat; User Must CONTROL+C to Stop Monitoring and/or
 			# Specify Date/Time to Stop Monitoring
 			
-			Clear-Host
-			DisplayMonitorHeaderInfo
+			#Clear-Host
+			#DisplayMonitorHeaderInfo
 			
 			Invoke-Expression $MonitorCommand > "D:\Monitor_Command.txt"
 			
@@ -69,31 +74,39 @@ else
 
 				
 				$Current_Range_Start = 0
-				$Current_Range_End = 9
+				$Current_Range_End = $Max_Page_Rows
 				
 				for ($c = 1; $c -le $Page_Count; $c++)
 				{
 					Write-Host "Page $c of $Page_Count"
 					$Current_Display_Set = $Monitor_Display[$Current_Range_Start..$Current_Range_End]
-					$Current_Display_Set
+					if ($Current_Display_Set -ne $null)
+					{
+						$Current_Display_Set
 					
-					$Current_Range_Start += 10
-					$Current_Range_End += 10
+						$Current_Range_Start += $Max_Page_Rows
+						$Current_Range_End += $Max_Page_Rows
 				
-				$Current_Page++
-				Sleep 5
- 						Clear-Host
+						#$Current_Page++
+						Sleep 1
+						Clear-Host
  						DisplayMonitorHeaderInfo
-						
 
- 						
+					}	
 				}
+								#Start-Sleep $RefreshSeconds
+							 						Clear-Host
+ 						DisplayMonitorHeaderInfo
 			}
 			else
 			{
+
 				$Monitor_Display
+				Start-Sleep $RefreshSeconds
+						Clear-Host
+ 						DisplayMonitorHeaderInfo
 			}
-			Start-Sleep $RefreshSeconds
+			
 			
 			$Today = Get-Date
 			if ($Today -gt $StopDateTime)
